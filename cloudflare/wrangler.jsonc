@@ -8,12 +8,12 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "contacts-db",
-      "database_id": "797d7d0e-bf9c-4b08-a97d-48cd2116e6db"
+      "database_name": "hackbay-contacts",
+      "database_id": "37dffc7d-fb61-4ff1-9c38-bfa646893f39"
     }
   ],
   "vars": {
     "CONTACT_EMAIL": "info@microwiseai.com",
-    "ALLOWED_ORIGINS": "https://microwiseai.com,https://www.microwiseai.com"
+    "ALLOWED_ORIGINS": "https://crimson206.dev,https://www.crimson206.dev"
   }
 }
