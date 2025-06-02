@@ -1,5 +1,7 @@
 # TaskHub - Team Homepage
 
+Visit the [homepage](https://taskhub.crimson206.dev/)
+
 ## About
 
 This repository contains the main homepage implementation for our **HackBay 2025** team project. 

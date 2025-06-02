@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Yarn
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/sdks
+
+# Wrangler
+.wrangler/
+
+# Environment variables
+.dev.vars
+.env*
+
+# Logs
+*.log
+
+# Runtime
+dist/ 

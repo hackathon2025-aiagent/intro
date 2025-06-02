@@ -1,0 +1,16 @@
+{
+	"name": "my-site",
+	"version": "0.2.0",
+	"private": true,
+	"scripts": {
+		"deploy:staging": "wrangler pages deploy --project-name=hackbay-taskhub --branch staging",
+		"deploy:production": "wrangler pages deploy --project-name=hackbay-taskhub",
+		"dev": "wrangler pages dev public --port 8787",
+		"start": "wrangler pages dev public --port 8787"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20241218.0",
+		"typescript": "^5.6.0",
+		"wrangler": "^4.18.0"
+	}
+}

@@ -1,0 +1,19 @@
+{
+  "name": "microwise-homepage",
+  "compatibility_date": "2024-01-01",
+  "pages_build_output_dir": "./public",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "contacts-db",
+      "database_id": "797d7d0e-bf9c-4b08-a97d-48cd2116e6db"
+    }
+  ],
+  "vars": {
+    "CONTACT_EMAIL": "info@microwiseai.com",
+    "ALLOWED_ORIGINS": "https://microwiseai.com,https://www.microwiseai.com"
+  }
+}
