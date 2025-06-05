@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -38,6 +38,7 @@ export interface FieldConfig {
 
 export interface InquiryTypeConfig {
   label: string;
+  defaultValue?: string;
   options: { value: string; label: string }[];
 }
 
@@ -108,13 +109,24 @@ const ContactForm: React.FC<ContactFormProps> = ({
     skills: '',
     subject: '',
     message: '',
-    inquiryType: config.fields.inquiryType.options[0]?.value || '',
+    inquiryType: config.fields.inquiryType.defaultValue || config.fields.inquiryType.options[0]?.value || '',
     preferredContact: 'email',
   });
+  
+  // Update inquiryType when config changes (for URL parameter support)
+  useEffect(() => {
+    if (config.fields.inquiryType.defaultValue) {
+      setFormData(prev => ({
+        ...prev,
+        inquiryType: config.fields.inquiryType.defaultValue || prev.inquiryType
+      }));
+    }
+  }, [config.fields.inquiryType.defaultValue]);
   
   const [errors, setErrors] = useState<Partial<ContactFormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isFormDisabled, setIsFormDisabled] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<ContactFormData> = {};
@@ -173,6 +185,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setIsFormDisabled(true);
     setSubmitStatus('idle');
 
     try {
@@ -186,12 +199,14 @@ const ContactForm: React.FC<ContactFormProps> = ({
       if (response.ok) {
         setSubmitStatus('success');
         onSuccess?.(formData);
-        resetForm();
+        // Keep form disabled after success - user can manually reset if needed
+        // resetForm();
       } else {
         throw new Error('Failed to submit form');
       }
     } catch (error) {
       setSubmitStatus('error');
+      setIsFormDisabled(false); // Re-enable form on error
       onError?.(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsSubmitting(false);
@@ -207,25 +222,44 @@ const ContactForm: React.FC<ContactFormProps> = ({
       skills: '',
       subject: '',
       message: '',
-      inquiryType: config.fields.inquiryType.options[0]?.value || '',
+      inquiryType: config.fields.inquiryType.defaultValue || config.fields.inquiryType.options[0]?.value || '',
       preferredContact: 'email',
     });
     setErrors({});
+    setIsFormDisabled(false);
+    setSubmitStatus('idle');
   };
 
   const isLoading = isSubmitting || externalLoading;
+  const isDisabled = isLoading || isFormDisabled;
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 600, mx: 'auto' }}>
       {submitStatus === 'success' && (
         <Alert severity="success" sx={{ mb: 3 }}>
           {config.successMessage}
+          <Box sx={{ mt: 2 }}>
+            <Button 
+              variant="outlined" 
+              size="small" 
+              onClick={resetForm}
+              sx={{ mr: 1 }}
+            >
+              Send Another Message
+            </Button>
+          </Box>
         </Alert>
       )}
       
       {submitStatus === 'error' && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {config.errorMessage}
+        </Alert>
+      )}
+
+      {isFormDisabled && submitStatus === 'success' && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Form submitted successfully. All fields are now disabled. Click "Send Another Message" above to send another message.
         </Alert>
       )}
 
@@ -239,7 +273,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         helperText={errors.name || config.fields.name.helperText}
         margin="normal"
         required={config.fields.name.required}
-        disabled={isLoading}
+        disabled={isDisabled}
       />
 
       {/* Email Field */}
@@ -253,7 +287,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         helperText={errors.email || config.fields.email.helperText}
         margin="normal"
         required={config.fields.email.required}
-        disabled={isLoading}
+        disabled={isDisabled}
       />
 
       {/* Phone Field */}
@@ -269,7 +303,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           placeholder={config.fields.phone.placeholder}
           margin="normal"
           required={config.fields.phone.required}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
       )}
 
@@ -287,7 +321,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
                 value="email" 
                 control={<Radio />} 
                 label="Email" 
-                disabled={isLoading}
+                disabled={isDisabled}
               />
             )}
             {config.fields.phone && (
@@ -295,7 +329,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
                 value="phone" 
                 control={<Radio />} 
                 label="Phone/Text" 
-                disabled={isLoading}
+                disabled={isDisabled}
               />
             )}
           </RadioGroup>
@@ -314,7 +348,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           placeholder={config.fields.company.placeholder}
           margin="normal"
           required={config.fields.company.required}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
       )}
 
@@ -330,7 +364,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           placeholder={config.fields.skills.placeholder}
           margin="normal"
           required={config.fields.skills.required}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
       )}
 
@@ -341,7 +375,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           value={formData.inquiryType}
           onChange={(e) => handleInputChange('inquiryType', e.target.value)}
           label={config.fields.inquiryType.label}
-          disabled={isLoading}
+          disabled={isDisabled}
         >
           {config.fields.inquiryType.options.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -362,7 +396,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         placeholder={config.fields.subject.placeholder}
         margin="normal"
         required={config.fields.subject.required}
-        disabled={isLoading}
+        disabled={isDisabled}
       />
 
       {/* Message Field */}
@@ -378,7 +412,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         placeholder={config.fields.message.placeholder}
         margin="normal"
         required={config.fields.message.required}
-        disabled={isLoading}
+        disabled={isDisabled}
       />
 
       <Button
@@ -386,14 +420,19 @@ const ContactForm: React.FC<ContactFormProps> = ({
         variant="contained"
         size="large"
         fullWidth
-        disabled={isLoading}
+        disabled={isDisabled}
         startIcon={isLoading ? <CircularProgress size={20} /> : <SendIcon />}
         sx={{ mt: 3, py: 1.5 }}
       >
-        {isLoading ? 'Sending...' : config.submitButtonText}
+        {isLoading 
+          ? 'Sending...' 
+          : submitStatus === 'success' 
+            ? 'Message Sent Successfully!' 
+            : config.submitButtonText
+        }
       </Button>
     </Box>
   );
 };
 
-export default ContactForm; 
+export default ContactForm;

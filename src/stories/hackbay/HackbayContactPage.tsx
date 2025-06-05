@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -52,15 +52,21 @@ const HackbayContactPage: React.FC<HackbayContactPageProps> = ({
   githubUrl = 'https://github.com/hackathon2025-aiagent',
 }) => {
   const theme = useTheme();
+  const [defaultPosition, setDefaultPosition] = useState<string>('');
+
+  // Read position from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const position = urlParams.get('position');
+    if (position) {
+      setDefaultPosition(position);
+    }
+  }, []);
 
   const navigationItems: NavigationItem[] = [
     { 
       label: 'Problem', 
       onClick: onProblemClick || (() => console.log('Navigate to Problem page'))
-    },
-    { 
-      label: 'Positions', 
-      onClick: onPositionsClick || (() => console.log('Navigate to Positions page'))
     },
     { 
       label: 'Contact', 
@@ -94,6 +100,7 @@ const HackbayContactPage: React.FC<HackbayContactPageProps> = ({
       },
       inquiryType: {
         label: "Interested Position",
+        defaultValue: defaultPosition,
         options: [
           { value: "python-cli", label: "Python CLI Developer" },
           { value: "typescript", label: "TypeScript Developer" },
